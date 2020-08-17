@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <link rel="stylesheet" href="lock.css">
+    <title>LockHart Resturants</title>
+</head>
+<body>
+
+<div class="mtn-pdd">
+<form  method="post" action=" singup" class="log-form">
+<h2>LockHart Resturants</h2>
+<h2>Sign Up</h2>
+First Name <br>
+<input type="text" name="fname"><br>
+Last Name <br>
+<input type="text" name="lname"><br>
+Usermail <br>
+<input type="text" name="usermail"><br>
+Password <br>
+<input type="password" name="pwd"><br>
+Confirm Password <br>
+<input type="password" name="pwd-repeat"><br><br>
+
+<a href="index.html"><button class="log-btn">SIGNUP</button></a><br><br>
+<a href="login.html"><input type="button" value="CANCEL" class="log-btn2"></a>
+
+<br>
+</form>
+</div>
+
+</body>
+</html>
+<?html
+
+
+if (isset($_POST['signup-btn'])) {
+require 'lockhart.html';
+
+$firstName = $_POST['fname'];
+$lastName = $_POST['lname'];
+$Email = $_POST['usermail'];
+$UserPwd = $_POST['pwd'];
+$Confpwd = $_POST['pwd-repeat'];
+
+if (empty($firstName) || empty($lastName ) ||empty($Email) || empty($UserPwd) || empty($Confpwd)) {
+	
+	echo "Please fill all fields!";
+	exit();
+}
+elseif ($UserPwd !== $Confpwd) {
+		echo " Your password did not match, Please try again.";
+}
+else{
+	
+    $sql = "SELECT fname FROM users WHERE fname = ?;";
+    $stmt = mysqli_stmt_init($conn);
+	if (!mysqli_stmt_prepare($stmt, $sql)) {
+	header("location: signup.html");
+	echo " Please try connecting again.";
+}
+else{
+	mysqli_stmt_bind_param($stmt, "s",$Email);
+    mysqli_stmt_execute($stmt);
+     mysqli_stmt_store_result($stmt);
+     $resultCheck = mysqli_stmt_num_rows($stmt);
+     if ($resultCheck > 0) {
+ 	header("location: signup.html ==?? username already exist!");
+
+	}
+	else{
+	$sql = "INSERT INTO users (fname,lname, user_email, passwd
+ ) VALUES (?, ?, ?, ?)";
+ $stmt = mysqli_stmt_init($conn);
+	if (!mysqli_stmt_prepare($stmt, $sql)) {
+ 	header("location: reg-user.html");
+	echo "Failled to connect.";
+  }
+else{
+    $pwdHashed = password_hash($UserPwd, PASSWORD_DEFAULT);
+    mysqli_stmt_bind_param($stmt, "ssss",$firstName, $lastName, $Email, $UserPwd);
+	mysqli_stmt_execute($stmt);
+    header("Location: index.html?==:: Signup was Succesful::");
+    exit();
+      }
+    }
+  }
+ 
+ mysqli_stmt_close($stmt);
+ mysqli_close($conn);
+}
+}
+else{
+	 header("Location: signup.html ");
+	 exit();
+}
+
+
